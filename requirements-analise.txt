@@ -1,0 +1,8 @@
+# Bibliotecas da análise de Modelagem Linear (modulos/ml).
+# O chat funciona sem elas; só são necessárias para gerar a análise de novo e rodar tests/test_ml.py.
+pandas>=3.1,<4
+numpy>=2.5,<3
+scipy>=1.18,<2
+statsmodels>=0.15,<1
+matplotlib>=3.11,<4
+openpyxl>=3.1,<4

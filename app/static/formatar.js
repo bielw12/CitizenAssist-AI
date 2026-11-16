@@ -33,7 +33,6 @@ export function formatarLinha(texto, destino) {
         const img = criar("img");
         img.src = m[2];
         img.alt = m[1];
-        img.loading = "lazy";
         destino.append(img);
       } else {
         destino.append(m[0]);

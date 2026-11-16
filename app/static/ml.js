@@ -78,12 +78,16 @@ export function montarCodigo(visao) {
       botoes[a.nome] = b;
     }
     escolher(arquivoEscolhido);
+    arquivoEscolhido = null;
   }).catch((falha) => mostrarErro(coluna, falha.message));
 
   return {
     aoMostrar() {
-      if (arquivoEscolhido && arquivos.length) escolher(arquivoEscolhido);
-      arquivoEscolhido = null;
+      // Antes de a lista de arquivos chegar, o pedido fica guardado para quando ela chegar.
+      if (arquivoEscolhido && arquivos.length) {
+        escolher(arquivoEscolhido);
+        arquivoEscolhido = null;
+      }
     },
   };
 }

@@ -290,7 +290,7 @@ details.avancado .campos { margin-top: 0.75rem; }
 /* ---------- Impressão (usada para gerar o PDF do relatório) ---------- */
 @media print {
   .lateral, .barra-topo, .fundo-menu, .nao-imprimir, .pular { display: none !important; }
-  html, body, .app, main, .visao { height: auto !important; overflow: visible !important; display: block !important; }
+  html, body, .app, main, .visao:not([hidden]) { height: auto !important; overflow: visible !important; display: block !important; }
   body { background: #fff; font-size: 11pt; }
   .coluna { max-width: none; padding: 0; }
   .texto h2, .texto h3, .texto h4 { break-after: avoid; }

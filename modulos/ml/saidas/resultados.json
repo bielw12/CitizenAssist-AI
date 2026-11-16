@@ -1,0 +1,547 @@
+{
+  "base": {
+    "fonte": {
+      "nome": "EPE (Empresa de Pesquisa Energética). Consumo mensal de energia elétrica por classe (regiões e subsistemas)",
+      "pagina": "https://www.epe.gov.br/pt/publicacoes-dados-abertos/publicacoes/consumo-de-energia-eletrica",
+      "arquivo": "https://www.epe.gov.br/sites-pt/publicacoes-dados-abertos/publicacoes/Documents/CONSUMO%20MENSAL%20DE%20ENERGIA%20EL%C3%89TRICA%20POR%20CLASSE.xlsx",
+      "acesso": "14/11/2026"
+    },
+    "registros": 7128,
+    "periodo": "01/2004 a 12/2025",
+    "descricao_md": "- **Fonte:** EPE (Empresa de Pesquisa Energética). Consumo mensal de energia elétrica por classe (regiões e subsistemas). Arquivo baixado em 14/11/2026 da página https://www.epe.gov.br/pt/publicacoes-dados-abertos/publicacoes/consumo-de-energia-eletrica\n- **Recorte:** os 27 estados, mês a mês, de janeiro de 2004 a dezembro de 2025: **7.128 registros** (27 × 12 × 22). Os meses de 2026 ficaram de fora porque a EPE os marca como preliminares.\n- **Unidade de observação:** um estado em um mês. Os dados são totais do estado, não de residências individuais.\n- **Variáveis usadas:**\n\n| Variável | Como foi calculada | Unidade |\n|---|---|---|\n| Consumo médio por residência | consumo residencial (MWh) × 1000 ÷ número de consumidores residenciais | kWh/mês |\n| Consumo médio por estabelecimento comercial | consumo comercial (MWh) × 1000 ÷ número de consumidores comerciais | kWh/mês |\n| Participação industrial | consumo industrial ÷ consumo total × 100 | % |\n| Ano | ano do registro | ano |\n\nNenhum registro precisou ser removido: as colunas usadas não têm valores ausentes no período. Arquivos: `modulos/ml/dados/` (planilha original da EPE e a tabela organizada em `.csv`)."
+  },
+  "questoes": [
+    {
+      "id": "02",
+      "titulo": "Probabilidade com a distribuição normal",
+      "enunciado": "Assumindo que as variáveis numéricas escolhidas seguem uma Distribuição Normal de Probabilidade, escolher uma variável aleatória da base de dados e determinar: a) a probabilidade desta variável ser menor do que a média dos registros, classificando o evento; b) a probabilidade desta variável ser maior que a mediana dos registros, classificando o evento.",
+      "arquivo": "q02_probabilidade.py",
+      "graficos": [
+        "q02_distribuicao.png"
+      ],
+      "valores": {
+        "variavel": "consumo_medio_res_kwh",
+        "n": 7128,
+        "media": 164.591704,
+        "desvio_padrao_populacional": 52.386164,
+        "mediana": 157.070791,
+        "p_menor_que_media": 0.5,
+        "z_mediana": -0.143567,
+        "p_maior_que_mediana": 0.557079,
+        "proporcao_real_menor_que_media": 0.557379,
+        "proporcao_real_maior_que_mediana": 0.5,
+        "assimetria": 0.953964,
+        "classificacao_a": "evento equiprovável (tem a mesma chance de ocorrer e de não ocorrer)",
+        "classificacao_b": "evento provável (mais de 50% de chance)"
+      },
+      "resposta_md": "**Variável escolhida:** consumo médio de energia elétrica por residência, em kWh por mês, calculado para cada estado e cada mês. É a variável mais próxima da conta de luz de uma família.\n\n| Medida | Valor |\n|---|---|\n| Registros | 7.128 |\n| Média (μ) | 164,59 kWh |\n| Desvio padrão populacional (σ) | 52,39 kWh |\n| Mediana | 157,07 kWh |\n\n![Histograma do consumo médio por residência com a curva normal, a média e a mediana](/ml/graficos/q02_distribuicao.png)\n\n### a) P(X < média)\n\nNa distribuição normal a média fica exatamente no centro da curva, então:\n\nP(X < 164,59) = Φ(0) = **50,00%**\n\nClassificação: **evento equiprovável (tem a mesma chance de ocorrer e de não ocorrer)**.\n\n### b) P(X > mediana)\n\nz = (mediana − μ) ÷ σ = (157,07 − 164,59) ÷ 52,39 = -0,1436\n\nP(X > 157,07) = 1 − Φ(-0,1436) = **55,71%**\n\nClassificação: **evento provável (mais de 50% de chance)**.\n\n### Interpretação\n\n- Pelo modelo normal, metade dos registros fica abaixo da média. Nos dados reais, porém, 55,7% dos registros estão abaixo da média.\n- A mediana (157,07 kWh) é menor que a média (164,59 kWh), e a assimetria é 0,95. Isso mostra uma distribuição com cauda longa à direita: alguns estados e meses têm consumo bem acima do comum, o que puxa a média para cima.\n- Por isso o modelo normal dá 55,7% para P(X > mediana), enquanto nos dados essa proporção é 50,0%, por definição de mediana. A suposição de normalidade, pedida no enunciado, é uma aproximação.\n\n*Premissa: a classificação dos eventos usa a escala impossível, pouco provável, equiprovável, provável e certo, pois não tivemos acesso ao material de aula.*\n"
+    },
+    {
+      "id": "03",
+      "titulo": "Teste de hipótese para a média",
+      "enunciado": "Assumindo distribuição normal, escolher uma variável e realizar um teste de hipótese para a média: a) a média amostral é menor do que a média populacional de referência, a 6% de significância, amostra de tamanho 20; b) a média amostral é maior do que a média populacional de referência, a 9% de significância, amostra de tamanho 25. Em ambos, o desvio padrão de referência é o desvio padrão populacional dos dados.",
+      "arquivo": "q03_teste_hipotese.py",
+      "graficos": [
+        "q03_teste_z.png"
+      ],
+      "valores": {
+        "variavel": "consumo_medio_res_kwh",
+        "media_referencia": 164.591704,
+        "desvio_padrao_populacional": 52.386164,
+        "testes": [
+          {
+            "item": "a",
+            "n": 20,
+            "alfa": 0.06,
+            "cauda": "esquerda",
+            "anos": [
+              2004,
+              2005
+            ],
+            "media_amostral": 136.401863,
+            "erro_padrao": 11.713902,
+            "z": -2.406529,
+            "z_critico": -1.554774,
+            "p_valor": 0.008052,
+            "rejeita_h0": true,
+            "amostra": [
+              {
+                "uf": "RN",
+                "ano": 2005,
+                "mes": 8,
+                "valor": 104.65
+              },
+              {
+                "uf": "RJ",
+                "ano": 2004,
+                "mes": 5,
+                "valor": 165.04
+              },
+              {
+                "uf": "DF",
+                "ano": 2004,
+                "mes": 6,
+                "valor": 188.59
+              },
+              {
+                "uf": "RN",
+                "ano": 2005,
+                "mes": 9,
+                "valor": 104.8
+              },
+              {
+                "uf": "MA",
+                "ano": 2005,
+                "mes": 3,
+                "valor": 86.56
+              },
+              {
+                "uf": "RJ",
+                "ano": 2004,
+                "mes": 6,
+                "valor": 145.72
+              },
+              {
+                "uf": "GO",
+                "ano": 2004,
+                "mes": 3,
+                "valor": 123.42
+              },
+              {
+                "uf": "SE",
+                "ano": 2004,
+                "mes": 6,
+                "valor": 90.24
+              },
+              {
+                "uf": "SE",
+                "ano": 2005,
+                "mes": 10,
+                "valor": 97.48
+              },
+              {
+                "uf": "PB",
+                "ano": 2004,
+                "mes": 11,
+                "valor": 86.65
+              },
+              {
+                "uf": "MT",
+                "ano": 2004,
+                "mes": 2,
+                "valor": 166.1
+              },
+              {
+                "uf": "PB",
+                "ano": 2004,
+                "mes": 8,
+                "valor": 78.82
+              },
+              {
+                "uf": "AM",
+                "ano": 2004,
+                "mes": 7,
+                "valor": 161.72
+              },
+              {
+                "uf": "CE",
+                "ano": 2005,
+                "mes": 3,
+                "valor": 97.09
+              },
+              {
+                "uf": "MS",
+                "ano": 2004,
+                "mes": 10,
+                "valor": 151.2
+              },
+              {
+                "uf": "RR",
+                "ano": 2005,
+                "mes": 3,
+                "valor": 205.86
+              },
+              {
+                "uf": "SC",
+                "ano": 2004,
+                "mes": 1,
+                "valor": 192.43
+              },
+              {
+                "uf": "PI",
+                "ano": 2005,
+                "mes": 5,
+                "valor": 85.22
+              },
+              {
+                "uf": "DF",
+                "ano": 2005,
+                "mes": 3,
+                "valor": 193.28
+              },
+              {
+                "uf": "DF",
+                "ano": 2005,
+                "mes": 6,
+                "valor": 203.17
+              }
+            ]
+          },
+          {
+            "item": "b",
+            "n": 25,
+            "alfa": 0.09,
+            "cauda": "direita",
+            "anos": [
+              2024,
+              2025
+            ],
+            "media_amostral": 190.712899,
+            "erro_padrao": 10.477233,
+            "z": 2.493139,
+            "z_critico": 1.340755,
+            "p_valor": 0.006331,
+            "rejeita_h0": true,
+            "amostra": [
+              {
+                "uf": "RN",
+                "ano": 2025,
+                "mes": 8,
+                "valor": 130.52
+              },
+              {
+                "uf": "RJ",
+                "ano": 2024,
+                "mes": 5,
+                "valor": 178.74
+              },
+              {
+                "uf": "DF",
+                "ano": 2024,
+                "mes": 6,
+                "valor": 207.36
+              },
+              {
+                "uf": "RN",
+                "ano": 2025,
+                "mes": 9,
+                "valor": 128.28
+              },
+              {
+                "uf": "MA",
+                "ano": 2025,
+                "mes": 3,
+                "valor": 149.2
+              },
+              {
+                "uf": "RJ",
+                "ano": 2024,
+                "mes": 6,
+                "valor": 153.11
+              },
+              {
+                "uf": "GO",
+                "ano": 2024,
+                "mes": 3,
+                "valor": 207.18
+              },
+              {
+                "uf": "SE",
+                "ano": 2024,
+                "mes": 6,
+                "valor": 137.9
+              },
+              {
+                "uf": "SE",
+                "ano": 2025,
+                "mes": 10,
+                "valor": 132.59
+              },
+              {
+                "uf": "PB",
+                "ano": 2024,
+                "mes": 11,
+                "valor": 145.74
+              },
+              {
+                "uf": "MT",
+                "ano": 2024,
+                "mes": 2,
+                "valor": 247.22
+              },
+              {
+                "uf": "PB",
+                "ano": 2024,
+                "mes": 8,
+                "valor": 135.93
+              },
+              {
+                "uf": "AM",
+                "ano": 2024,
+                "mes": 7,
+                "valor": 259.55
+              },
+              {
+                "uf": "CE",
+                "ano": 2025,
+                "mes": 3,
+                "valor": 132.75
+              },
+              {
+                "uf": "MS",
+                "ano": 2024,
+                "mes": 10,
+                "valor": 225.35
+              },
+              {
+                "uf": "RR",
+                "ano": 2025,
+                "mes": 3,
+                "valor": 335.77
+              },
+              {
+                "uf": "SC",
+                "ano": 2024,
+                "mes": 1,
+                "valor": 292.14
+              },
+              {
+                "uf": "PI",
+                "ano": 2025,
+                "mes": 5,
+                "valor": 159.31
+              },
+              {
+                "uf": "DF",
+                "ano": 2025,
+                "mes": 3,
+                "valor": 219.93
+              },
+              {
+                "uf": "DF",
+                "ano": 2025,
+                "mes": 6,
+                "valor": 188.2
+              },
+              {
+                "uf": "RO",
+                "ano": 2025,
+                "mes": 5,
+                "valor": 291.7
+              },
+              {
+                "uf": "PE",
+                "ano": 2025,
+                "mes": 7,
+                "valor": 118.22
+              },
+              {
+                "uf": "RO",
+                "ano": 2025,
+                "mes": 1,
+                "valor": 262.65
+              },
+              {
+                "uf": "DF",
+                "ano": 2024,
+                "mes": 1,
+                "valor": 199.41
+              },
+              {
+                "uf": "AL",
+                "ano": 2024,
+                "mes": 10,
+                "valor": 129.09
+              }
+            ]
+          }
+        ]
+      },
+      "resposta_md": "**Variável:** consumo médio por residência (kWh/mês). **Pergunta:** o consumo por residência no início e no fim da série era diferente da média de 2004 a 2025?\n\nValores de referência (todos os 7.128 registros): média populacional μ = **164,59 kWh** e desvio padrão populacional σ = **52,39 kWh**. Como σ é conhecido, usamos o teste z.\n\n![Curvas normais padrão com as regiões de rejeição e os valores de z calculados](/ml/graficos/q03_teste_z.png)\n\n### a) Média amostral menor que a de referência (α = 6%, n = 20)\n\nAmostra: 20 registros sorteados entre os meses de 2004 e 2005.\n\n- H₀: μ = 164,59 kWh\n- H₁: μ < 164,59 kWh (teste unilateral à esquerda)\n\n| Etapa | Valor |\n|---|---|\n| Média amostral (x̄) | 136,40 kWh |\n| Erro padrão (σ ÷ √n) | 52,39 ÷ √20 = 11,7139 |\n| Estatística z = (x̄ − μ) ÷ (σ ÷ √n) | -2,4065 |\n| Valor crítico | -1,5548 |\n| Valor-p | 0,0081 |\n\nComo z = -2,4065 está na região de rejeição (z < -1,5548), **rejeitamos H₀**.\n\n**Conclusão:** Ao nível de 6% de significância, há evidência de que o consumo médio por residência entre 2004 e 2005 era menor que a média de referência de 164,59 kWh.\n\nRegistros sorteados (estado, mês/ano: kWh): RN 08/2005: 104,7; RJ 05/2004: 165,0; DF 06/2004: 188,6; RN 09/2005: 104,8; MA 03/2005: 86,6; RJ 06/2004: 145,7; GO 03/2004: 123,4; SE 06/2004: 90,2; SE 10/2005: 97,5; PB 11/2004: 86,7; MT 02/2004: 166,1; PB 08/2004: 78,8; AM 07/2004: 161,7; CE 03/2005: 97,1; MS 10/2004: 151,2; RR 03/2005: 205,9; SC 01/2004: 192,4; PI 05/2005: 85,2; DF 03/2005: 193,3; DF 06/2005: 203,2.\n\n\n### b) Média amostral maior que a de referência (α = 9%, n = 25)\n\nAmostra: 25 registros sorteados entre os meses de 2024 e 2025.\n\n- H₀: μ = 164,59 kWh\n- H₁: μ > 164,59 kWh (teste unilateral à direita)\n\n| Etapa | Valor |\n|---|---|\n| Média amostral (x̄) | 190,71 kWh |\n| Erro padrão (σ ÷ √n) | 52,39 ÷ √25 = 10,4772 |\n| Estatística z = (x̄ − μ) ÷ (σ ÷ √n) | 2,4931 |\n| Valor crítico | 1,3408 |\n| Valor-p | 0,0063 |\n\nComo z = 2,4931 está na região de rejeição (z > 1,3408), **rejeitamos H₀**.\n\n**Conclusão:** Ao nível de 9% de significância, há evidência de que o consumo médio por residência entre 2024 e 2025 era maior que a média de referência de 164,59 kWh.\n\nRegistros sorteados (estado, mês/ano: kWh): RN 08/2025: 130,5; RJ 05/2024: 178,7; DF 06/2024: 207,4; RN 09/2025: 128,3; MA 03/2025: 149,2; RJ 06/2024: 153,1; GO 03/2024: 207,2; SE 06/2024: 137,9; SE 10/2025: 132,6; PB 11/2024: 145,7; MT 02/2024: 247,2; PB 08/2024: 135,9; AM 07/2024: 259,6; CE 03/2025: 132,8; MS 10/2024: 225,3; RR 03/2025: 335,8; SC 01/2024: 292,1; PI 05/2025: 159,3; DF 03/2025: 219,9; DF 06/2025: 188,2; RO 05/2025: 291,7; PE 07/2025: 118,2; RO 01/2025: 262,6; DF 01/2024: 199,4; AL 10/2024: 129,1.\n\n\n*Premissa: a amostra de cada item foi sorteada, com semente fixa (2026), entre os registros de um período (2004–2005 no item a, 2024–2025 no item b). O enunciado não define de onde vem a amostra; escolhemos períodos para que o teste responda a uma pergunta útil sobre a evolução do consumo.*\n"
+    },
+    {
+      "id": "04",
+      "titulo": "Análise bivariada e regressão linear simples",
+      "enunciado": "Faça uma Análise Bivariada entre 02 variáveis quantitativas contendo: a) o gráfico de dispersão, com título e nomes nos eixos, e interprete; b) a covariância e a correlação linear de Pearson, e interprete; c) o gráfico de correlação linear de Pearson, e interprete; d) a reta da regressão linear simples (no gráfico de dispersão) e a equação; e) a verificação da adequação do modelo (R² e Teste F), e interprete; f) faça uma previsão.",
+      "arquivo": "q04_bivariada.py",
+      "graficos": [
+        "q04_dispersao.png",
+        "q04_correlacao.png",
+        "q04_regressao.png"
+      ],
+      "valores": {
+        "x": "consumo_medio_com_kwh",
+        "y": "consumo_medio_res_kwh",
+        "n": 7128,
+        "covariancia": 12940.288643,
+        "pearson_r": 0.678161,
+        "pearson_p": 0.0,
+        "estados_maior_consumo_comercial": [
+          "SP",
+          "RJ"
+        ],
+        "intercepto": 58.416582,
+        "inclinacao": 0.097547,
+        "r2": 0.459902,
+        "f": 6067.905605,
+        "f_p": 0.0,
+        "previsao_x": 1313.516351,
+        "previsao_y": 186.546662,
+        "previsao_intervalo_95": [
+          111.058697,
+          262.034628
+        ]
+      },
+      "resposta_md": "**Variáveis:** X = consumo médio por estabelecimento comercial e Y = consumo médio por residência, ambos em kWh por mês, para cada estado e mês (7.128 registros). Usamos médias por consumidor, e não totais, para não medir só o tamanho do estado: estados grandes têm muito consumo residencial e comercial ao mesmo tempo.\n\n### a) Gráfico de dispersão\n\n![Dispersão do consumo médio por residência contra o consumo médio por estabelecimento comercial](/ml/graficos/q04_dispersao.png)\n\nOs pontos sobem da esquerda para a direita: onde as lojas e escritórios consomem mais por unidade, as residências também tendem a consumir mais. A nuvem é larga, o que indica que outros fatores também influenciam o consumo das casas. À direita aparece um grupo separado, com consumo comercial alto e residencial moderado: são principalmente registros de SP e RJ, os estados com maior consumo médio por estabelecimento comercial (1.980 e 1.718 kWh), mas com consumo por residência de 197 e 167 kWh. Esse grupo puxa a reta para baixo do lado direito do gráfico.\n\n### b) Covariância e correlação de Pearson\n\n| Medida | Valor |\n|---|---|\n| Covariância | 12.940,29 kWh² |\n| Correlação de Pearson (r) | 0,6782 |\n| Valor-p da correlação | menor que 0,0001 |\n\nA covariância positiva mostra que as duas variáveis crescem juntas, mas seu valor depende das unidades e não indica a intensidade. A correlação r = 0,6782 é **moderada e positiva**, e o valor-p menor que 0,0001 indica que ela é estatisticamente diferente de zero. Correlação não é causa: as duas variáveis provavelmente respondem a fatores comuns, como o clima quente (uso de ar-condicionado) e a renda da região.\n\n### c) Gráfico de correlação\n\n![Mapa de calor da correlação de Pearson entre as duas variáveis](/ml/graficos/q04_correlacao.png)\n\nA cor indica o sentido e a força da relação: quanto mais escura, mais forte; azul é positiva e laranja seria negativa. A diagonal vale 1 porque é cada variável comparada com ela mesma.\n\n### d) Reta e equação da regressão linear simples\n\n![Dispersão com a reta de regressão linear simples](/ml/graficos/q04_regressao.png)\n\n**ŷ = 58,42 + 0,0975 · x**\n\n- Inclinação (0,0975): cada 100 kWh a mais no consumo médio comercial está associado a 9,75 kWh a mais no consumo médio por residência.\n- Intercepto (58,42): é o ponto em que a reta corta o eixo Y. Não tem interpretação prática, porque não existe consumo comercial igual a zero na base.\n\n### e) Adequação do modelo\n\n| Medida | Valor |\n|---|---|\n| R² | 0,4599 |\n| Estatística F | 6.067,91 |\n| Valor-p do teste F | menor que 0,0001 |\n\nO R² indica que o consumo comercial explica **46,0%** da variação do consumo por residência; o restante depende de outros fatores. O teste F tem valor-p menor que 0,0001, menor que 5%: o modelo é estatisticamente significativo, ou seja, melhor do que usar apenas a média.\n\n### f) Previsão\n\nPara um estado com consumo comercial de 1.313,52 kWh por estabelecimento (média observada em 2025):\n\nŷ = 58,42 + 0,0975 × 1.313,52 = **186,55 kWh por residência por mês**\n\nIntervalo de previsão de 95% para um estado e mês específicos: de 111,06 a 262,03 kWh. O intervalo é largo, coerente com o R² de 46,0%: a previsão serve como referência, não como valor exato.\n\n*Premissa: intensidade da correlação classificada como fraca (|r| < 0,3), moderada (0,3 a 0,7) ou forte (≥ 0,7). Nível de significância de 5% nos testes desta questão.*\n"
+    },
+    {
+      "id": "05",
+      "titulo": "Análise multivariada e regressão linear múltipla",
+      "enunciado": "Faça uma Análise Multivariada entre, pelo menos, 03 variáveis quantitativas contendo: a) o gráfico de dispersão, e interprete; b) a matriz de covariância e a matriz de correlação linear de Pearson, e interprete; c) o gráfico de correlação linear de Pearson, e interprete; d) a equação da regressão linear múltipla; e) a verificação da adequação do modelo (R² e Teste F), e interprete; f) faça uma previsão utilizando, pelo menos, 02 variáveis explicativas.",
+      "arquivo": "q05_multivariada.py",
+      "graficos": [
+        "q05_dispersao.png",
+        "q05_correlacao.png"
+      ],
+      "valores": {
+        "y": "consumo_medio_res_kwh",
+        "x": [
+          "consumo_medio_com_kwh",
+          "participacao_industrial",
+          "ano"
+        ],
+        "n": 7128,
+        "covariancias": {
+          "consumo_medio_res_kwh": {
+            "consumo_medio_res_kwh": 2744.695285,
+            "consumo_medio_com_kwh": 12940.288643,
+            "participacao_industrial": -407.025304,
+            "ano": 111.85495
+          },
+          "consumo_medio_com_kwh": {
+            "consumo_medio_res_kwh": 12940.288643,
+            "consumo_medio_com_kwh": 132656.442874,
+            "participacao_industrial": -1072.660468,
+            "ano": 786.524383
+          },
+          "participacao_industrial": {
+            "consumo_medio_res_kwh": -407.025304,
+            "consumo_medio_com_kwh": -1072.660468,
+            "participacao_industrial": 288.170579,
+            "ano": -21.952479
+          },
+          "ano": {
+            "consumo_medio_res_kwh": 111.85495,
+            "consumo_medio_com_kwh": 786.524383,
+            "participacao_industrial": -21.952479,
+            "ano": 40.255648
+          }
+        },
+        "correlacoes": {
+          "consumo_medio_res_kwh": {
+            "consumo_medio_res_kwh": 1.0,
+            "consumo_medio_com_kwh": 0.678161,
+            "participacao_industrial": -0.457667,
+            "ano": 0.336507
+          },
+          "consumo_medio_com_kwh": {
+            "consumo_medio_res_kwh": 0.678161,
+            "consumo_medio_com_kwh": 1.0,
+            "participacao_industrial": -0.17349,
+            "ano": 0.340357
+          },
+          "participacao_industrial": {
+            "consumo_medio_res_kwh": -0.457667,
+            "consumo_medio_com_kwh": -0.17349,
+            "participacao_industrial": 1.0,
+            "ano": -0.203819
+          },
+          "ano": {
+            "consumo_medio_res_kwh": 0.336507,
+            "consumo_medio_com_kwh": 0.340357,
+            "participacao_industrial": -0.203819,
+            "ano": 1.0
+          }
+        },
+        "coeficientes": {
+          "const": -957.181945,
+          "consumo_medio_com_kwh": 0.085918,
+          "participacao_industrial": -1.052567,
+          "ano": 0.525935
+        },
+        "p_valores": {
+          "const": 0.0,
+          "consumo_medio_com_kwh": 0.0,
+          "participacao_industrial": 0.0,
+          "ano": 0.0
+        },
+        "r2": 0.582598,
+        "r2_ajustado": 0.582422,
+        "f": 3314.493297,
+        "f_p": 0.0,
+        "r2_simples": 0.459902,
+        "cenario": {
+          "consumo_medio_com_kwh": 1313.516351,
+          "participacao_industrial": 26.058533,
+          "ano": 2025
+        },
+        "previsao_y": 193.263446,
+        "previsao_intervalo_95": [
+          126.881167,
+          259.645725
+        ]
+      },
+      "resposta_md": "**Variáveis:** consumo médio por residência (Y), consumo médio por estabelecimento comercial, participação da indústria no consumo total do estado (%) e ano. A participação industrial indica o perfil econômico do estado; o ano capta a tendência ao longo do tempo.\n\n### a) Gráfico de dispersão\n\n![Matriz de dispersão entre as quatro variáveis, com histogramas na diagonal](/ml/graficos/q05_dispersao.png)\n\nCada quadro cruza duas variáveis. O consumo por residência sobe junto com o consumo comercial e com o ano, e tende a cair quando a indústria tem participação maior no consumo do estado. A nuvem do ano forma colunas porque cada ano tem 324 registros (27 estados × 12 meses).\n\n### b) Matrizes de covariância e de correlação\n\nCovariância (unidades diferentes por variável, por isso só o sinal é comparável):\n\n| | Consumo residencial | Consumo comercial | Participação industrial | Ano |\n|---|---|---|---|---|\n| **Consumo residencial** | 2.744,70 | 12.940,29 | -407,03 | 111,85 |\n| **Consumo comercial** | 12.940,29 | 132.656,44 | -1.072,66 | 786,52 |\n| **Participação industrial** | -407,03 | -1.072,66 | 288,17 | -21,95 |\n| **Ano** | 111,85 | 786,52 | -21,95 | 40,26 |\n\nCorrelação de Pearson:\n\n| | Consumo residencial | Consumo comercial | Participação industrial | Ano |\n|---|---|---|---|---|\n| **Consumo residencial** | 1,0000 | 0,6782 | -0,4577 | 0,3365 |\n| **Consumo comercial** | 0,6782 | 1,0000 | -0,1735 | 0,3404 |\n| **Participação industrial** | -0,4577 | -0,1735 | 1,0000 | -0,2038 |\n| **Ano** | 0,3365 | 0,3404 | -0,2038 | 1,0000 |\n\nEm relação ao consumo por residência, a correlação é de 0,68 com o consumo comercial, -0,46 com a participação industrial e 0,34 com o ano. Entre as variáveis explicativas, as correlações são baixas (no máximo 0,34 em valor absoluto), o que reduz o risco de uma variável repetir a informação da outra no modelo.\n\n### c) Gráfico de correlação\n\n![Mapa de calor da matriz de correlação de Pearson](/ml/graficos/q05_correlacao.png)\n\nAzul indica relação positiva e laranja, negativa; quanto mais escura a cor, mais forte a relação. O quadro confirma a tabela: o consumo comercial é a variável mais ligada ao consumo por residência.\n\n### d) Equação da regressão linear múltipla\n\n**ŷ = -957,1819 + 0,0859·consumo_comercial − 1,0526·participação_industrial + 0,5259·ano**\n\n- **Consumo comercial** (0,0859; valor-p menor que 0,0001): mantidas as outras variáveis constantes, cada 1 kWh a mais está associado a 0,0859 kWh a mais no consumo por residência.\n- **Participação industrial** (-1,0526; valor-p menor que 0,0001): mantidas as outras variáveis constantes, cada 1 ponto percentual a mais está associado a 1,0526 kWh a menos no consumo por residência.\n- **Ano** (0,5259; valor-p menor que 0,0001): mantidas as outras variáveis constantes, cada 1 ano a mais está associado a 0,5259 kWh a mais no consumo por residência.\n\nO intercepto (-957,18) é grande porque a variável ano vale cerca de 2.000; ele não tem interpretação prática isolada.\n\n### e) Adequação do modelo\n\n| Medida | Valor |\n|---|---|\n| R² | 0,5826 |\n| R² ajustado | 0,5824 |\n| Estatística F | 3.314,49 |\n| Valor-p do teste F | menor que 0,0001 |\n| R² da regressão simples (só consumo comercial) | 0,4599 |\n\nO modelo explica **58,3%** da variação do consumo por residência, contra 46,0% da regressão simples da questão 04. O teste F (valor-p menor que 0,0001) indica que o conjunto das variáveis é estatisticamente significativo. Ainda assim, parte da variação continua sem explicação, provavelmente por fatores que não estão na base, como temperatura e renda.\n\n### f) Previsão\n\nCenário com as médias de 2025: consumo comercial de 1.313,52 kWh por estabelecimento, participação industrial de 26,06% e ano 2025.\n\nŷ = **193,26 kWh por residência por mês**\n\nIntervalo de previsão de 95%: de 126,88 a 259,65 kWh. Usar o modelo para anos futuros seria extrapolação e exige cuidado.\n"
+    },
+    {
+      "id": "06",
+      "titulo": "Regressão logística binária",
+      "enunciado": "Faça uma Análise Multivariada entre, pelo menos, 03 variáveis quantitativas contendo: a) a equação da regressão logística binária; b) a matriz de confusão e a acurácia, interprete os resultados; c) uma classificação utilizando, pelo menos, 02 variáveis explicativas.",
+      "arquivo": "q06_logistica.py",
+      "graficos": [
+        "q06_matriz_confusao.png"
+      ],
+      "valores": {
+        "limite_mediana": 157.070791,
+        "x": [
+          "consumo_medio_com_kwh",
+          "participacao_industrial",
+          "ano"
+        ],
+        "n_treino": 4990,
+        "n_teste": 2138,
+        "coeficientes": {
+          "const": 83.47061,
+          "consumo_medio_com_kwh": 0.0079,
+          "participacao_industrial": -0.051762,
+          "ano": -0.044806
+        },
+        "p_valores": {
+          "const": 0.0,
+          "consumo_medio_com_kwh": 0.0,
+          "participacao_industrial": 0.0,
+          "ano": 0.0
+        },
+        "matriz_confusao": {
+          "vn": 920,
+          "fp": 162,
+          "fn": 151,
+          "vp": 905
+        },
+        "acuracia": 0.853601,
+        "sensibilidade": 0.857008,
+        "especificidade": 0.850277,
+        "acuracia_referencia": 0.50608,
+        "pseudo_r2": 0.46995,
+        "cenario": {
+          "consumo_medio_com_kwh": 1313.516351,
+          "participacao_industrial": 26.058533,
+          "ano": 2025
+        },
+        "probabilidade_cenario": 0.853896,
+        "classe_cenario": 1
+      },
+      "resposta_md": "**Variável resposta (binária):** \"consumo alto por residência\", igual a 1 quando o consumo médio por residência do estado no mês passa da mediana de todos os registros (157,07 kWh) e 0 caso contrário.\n**Variáveis explicativas:** consumo médio por estabelecimento comercial (kWh), participação da indústria no consumo (%) e ano.\n\nPara medir o acerto de forma honesta, os 7.128 registros foram divididos ao acaso (semente 2026): 70% para ajustar o modelo (4.990 registros) e 30% para testar (2.138 registros que o modelo não viu).\n\n### a) Equação da regressão logística binária\n\nP(consumo alto) = 1 ÷ (1 + e^−z), com\n\n**z = 83,4706 + 0,007900·consumo_comercial − 0,051762·participação_industrial − 0,044806·ano**\n\n- **Consumo comercial** (valor-p menor que 0,0001): 100 kWh a mais no consumo comercial multiplica a chance de consumo alto por 2,203.\n- **Participação industrial** (valor-p menor que 0,0001): 1 ponto percentual a mais de participação industrial multiplica a chance de consumo alto por 0,950.\n- **Ano** (valor-p menor que 0,0001): 1 ano a mais multiplica a chance de consumo alto por 0,956.\n\n### b) Matriz de confusão e acurácia\n\n![Matriz de confusão do modelo nos dados de teste](/ml/graficos/q06_matriz_confusao.png)\n\n| | Previsto: não alto | Previsto: alto |\n|---|---|---|\n| **Real: não alto** | 920 (acertos) | 162 (falsos positivos) |\n| **Real: alto** | 151 (falsos negativos) | 905 (acertos) |\n\n| Medida | Valor |\n|---|---|\n| Acurácia | 85,4% |\n| Sensibilidade (acerto entre os casos altos) | 85,7% |\n| Especificidade (acerto entre os casos não altos) | 85,0% |\n| Acurácia de quem sempre chuta a classe mais comum | 50,6% |\n| Pseudo R² de McFadden | 0,4700 |\n\nO modelo acerta **85,4%** dos registros de teste, 34,8 pontos percentuais acima de simplesmente chutar sempre a classe mais comum (50,6%). Os erros se dividem de forma parecida entre falsos positivos e falsos negativos.\n\n### c) Classificação de um novo caso\n\nCenário com as médias de 2025: consumo comercial de 1.313,52 kWh, participação industrial de 26,06% e ano 2025.\n\nz = 1,7655 e P(consumo alto) = **85,4%**. Com o corte em 50%, o caso é classificado como **consumo alto por residência**.\n\n*Premissas: a variável binária foi definida pela mediana, para dividir a base em dois grupos de tamanho parecido; o corte de classificação é 50%; a divisão treino/teste (70%/30%) é aleatória por registro, então um mesmo estado aparece nos dois grupos em meses diferentes.*\n"
+    }
+  ]
+}
