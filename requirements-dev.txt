@@ -1,0 +1,4 @@
+# Bibliotecas para rodar os testes (não são necessárias no servidor).
+-r requirements.txt
+pytest>=9,<10
+httpx>=0.28,<1

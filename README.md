@@ -91,6 +91,12 @@ Assistente web que ajuda cidadãos a se informarem sobre cidadania, energia e da
    pip install -r requirements-analise.txt
    ```
 
+   Para rodar os testes, instale também:
+
+   ```bash
+   pip install -r requirements-dev.txt
+   ```
+
 ## Configuração do arquivo .env
 
 O `.env` guarda a sua chave e fica só no seu computador (o `.gitignore` impede que ele vá para o GitHub).
@@ -140,7 +146,7 @@ O terminal mostra `Uvicorn running on http://127.0.0.1:8000`. Abra esse endereç
 python -m pytest
 ```
 
-A última linha deve ser parecida com `101 passed`. Os testes não usam a sua chave e não gastam crédito. Os testes da análise estatística (`tests/test_ml.py`) precisam das bibliotecas de `requirements-analise.txt`; sem elas, eles aparecem como `skipped`.
+A última linha deve ser parecida com `102 passed`. Os testes não usam a sua chave e não gastam crédito. Os testes da análise estatística (`tests/test_ml.py`) precisam das bibliotecas de `requirements-analise.txt`; sem elas, eles aparecem como `skipped`.
 
 ### Perguntas para testar os chats com a chave
 
@@ -174,6 +180,10 @@ python -m modulos.logica.cnh
 ```
 
 O programa faz as quatro perguntas, aceita `s`/`n` ou `1`/`0` e repete a pergunta quando a resposta é inválida. No fim, mostra a saída x e o que falta para a pessoa ficar apta.
+
+## Publicar na internet (Vercel)
+
+Passo a passo em [`docs/deploy-vercel.md`](docs/deploy-vercel.md).
 
 ## Organização das pastas
 

@@ -181,3 +181,15 @@ def test_busca_na_web_so_em_dominios_configurados(monkeypatch):
     assert busca["allowed_domains"] == ["gov.br"]
     monkeypatch.setattr(config, "BUSCA_WEB", False)
     assert chat.ferramentas_do_modulo("geral") == []
+
+
+def test_limite_usa_o_ip_real_atras_de_proxy(cliente, monkeypatch):
+    """Na Vercel, o IP do visitante vem em X-Forwarded-For; cada IP tem o próprio limite."""
+    trocar_api(monkeypatch, textos=["ok"])
+    de_a = {"x-forwarded-for": "203.0.113.10, 10.0.0.1"}
+    de_b = {"x-forwarded-for": "198.51.100.7"}
+    corpo = {"modulo": "geral", "historico": [], "mensagem": "Olá"}
+    for _ in range(config.LIMITE_REQUISICOES_POR_MINUTO):
+        assert cliente.post("/api/chat", json=corpo, headers=de_a).status_code == 200
+    assert cliente.post("/api/chat", json=corpo, headers=de_a).status_code == 429
+    assert cliente.post("/api/chat", json=corpo, headers=de_b).status_code == 200

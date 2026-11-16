@@ -84,6 +84,15 @@ def erro(mensagem: str, status: int) -> JSONResponse:
 _acessos: dict[str, deque[float]] = defaultdict(deque)
 
 
+def ip_do_visitante(request: Request) -> str:
+    """Endereço do visitante. Atrás de um proxy (como a Vercel), o IP real vem em X-Forwarded-For."""
+    encaminhado = request.headers.get("x-forwarded-for", "")
+    primeiro = encaminhado.split(",")[0].strip()
+    if primeiro:
+        return primeiro
+    return request.client.host if request.client else "desconhecido"
+
+
 def passou_do_limite(ip: str) -> bool:
     agora = time.monotonic()
     acessos = _acessos[ip]
@@ -130,7 +139,7 @@ async def pagina_inicial():
 
 @app.post("/api/chat")
 async def chat(pedido: PedidoChat, request: Request):
-    ip = request.client.host if request.client else "desconhecido"
+    ip = ip_do_visitante(request)
     if passou_do_limite(ip):
         return erro("Você enviou muitas mensagens em pouco tempo. Aguarde um minuto e tente de novo.", 429)
 
