@@ -68,6 +68,16 @@ def test_relatorio_nao_tem_numero_fora_dos_resultados():
     assert re.search(r"\[PENDENTE", relatorio)
 
 
+def test_chat_de_estatistica_recebe_o_relatorio():
+    from app import prompts
+
+    texto = prompts.montar_system_prompt("ml")
+    assert "<relatorio>" in texto
+    assert "Nunca invente nem recalcule resultados" in texto
+    resultados = json.loads(SALVOS.read_text(encoding="utf-8"))
+    assert comum.pct(resultados["questoes"][4]["valores"]["acuracia"], 1) in texto
+
+
 def test_rotas_do_modulo():
     cliente = TestClient(main.app)
     assert len(cliente.get("/api/ml/resultados").json()["questoes"]) == 5
