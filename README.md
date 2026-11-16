@@ -1,40 +1,119 @@
 # Citizen Assist AI
 
-Assistente web que ajuda cidadãos a se informarem sobre cidadania, energia e dados, usando a API do Claude (Anthropic). É um protótipo acadêmico da **Global Solution GS26_2** (Ciência da Computação, turma 1CC). Não é um canal oficial do governo e não confirma a concessão de serviços ou direitos.
+Assistente web que ajuda cidadãos a se informarem sobre serviços públicos, energia e dados, usando a inteligência artificial Claude, da Anthropic. É um protótipo acadêmico da **Global Solution GS26_2** (Ciência da Computação, turma 1CC), que reúne em um só sistema as entregas de três disciplinas. Não é um canal oficial do governo e não confirma a concessão de serviços ou direitos.
+
+| Chat de cidadania | Simulador solar |
+|---|---|
+| ![Tela inicial do chat de cidadania, com sugestões de perguntas e avisos de privacidade](docs/imagens/chat-cidadania.png) | ![Simulador solar com cinco placas no telhado e economia de R$ 237,50 por mês](docs/imagens/simulador-solar.png) |
+| **Simulador de decisão lógica** | **Questões de modelagem linear** |
+| ![Simulador de decisão lógica com interruptores e o circuito do grupo mostrando a saída 0](docs/imagens/simulador-decisao-logica.png) | ![Questão 04 respondida, com o gráfico de dispersão do consumo de energia](docs/imagens/questoes-modelagem-linear.png) |
+
+### 🔗 Acesse o sistema: **https://citizen-assist-ai-nine.vercel.app/**
 
 **Integrantes:** [PENDENTE: nome completo e RM de cada integrante]
 
-## Módulos e disciplinas
+## As quatro partes do sistema
 
-| Módulo (barra lateral) | Seções | Disciplina | Onde está o código |
-|---|---|---|---|
-| Dúvidas gerais | Chat de cidadania, com busca em sites oficiais | Produto (todas) | `app/` |
-| Decisão lógica | Entrega · Simulador · Relatório | Computer Science | `modulos/logica/`, `app/static/logica.js`, `docs/computer_science/` |
-| Dados e estatística | Questões respondidas · Código · Relatório · Chat de dúvidas | Modelagem Linear para Aprendizado de Máquina | `modulos/ml/`, `docs/modelagem_linear/` |
-| Energia | Simulador solar · Comparar alternativas · Chat de energia | Soluções em Energias Renováveis e Sustentáveis | `modulos/energia/`, `app/ferramentas.py`, `app/static/energia.js`, `docs/energia/` |
+Todas ficam na barra lateral do site. Os links abaixo levam direto a cada seção.
 
-### Contribuição de Computer Science
+| Parte | Disciplina | Seções |
+|---|---|---|
+| [1. Chat de cidadania](#1-chat-de-cidadania-parte-geral) | Produto (todas) | [Chat](https://citizen-assist-ai-nine.vercel.app/#/geral/chat) |
+| [2. Decisão lógica](#2-decisão-lógica-computer-science) | Computer Science | [Entrega](https://citizen-assist-ai-nine.vercel.app/#/logica/entrega) · [Simulador](https://citizen-assist-ai-nine.vercel.app/#/logica/simulador) · [Relatório](https://citizen-assist-ai-nine.vercel.app/#/logica/relatorio) |
+| [3. Dados e estatística](#3-dados-e-estatística-modelagem-linear-para-aprendizado-de-máquina) | Modelagem Linear para Aprendizado de Máquina | [Questões](https://citizen-assist-ai-nine.vercel.app/#/ml/questoes) · [Código](https://citizen-assist-ai-nine.vercel.app/#/ml/codigo) · [Relatório](https://citizen-assist-ai-nine.vercel.app/#/ml/relatorio) · [Chat de dúvidas](https://citizen-assist-ai-nine.vercel.app/#/ml/chat) |
+| [4. Energia](#4-energia-soluções-em-energias-renováveis-e-sustentáveis) | Soluções em Energias Renováveis e Sustentáveis | [Simulador solar](https://citizen-assist-ai-nine.vercel.app/#/energia/simulador) · [Comparar alternativas](https://citizen-assist-ai-nine.vercel.app/#/energia/comparar) · [Chat de energia](https://citizen-assist-ai-nine.vercel.app/#/energia/chat) |
 
-- **Situação escolhida:** orientar se a pessoa pode iniciar o processo de tirar a CNH. Variáveis: a = maior de idade, b = alfabetizado, c = penalmente imputável, d = tem documento de identidade. Expressão do grupo: x = (a·b)·(c·d).
-- **Feito pelo grupo, sem IA:** tabela-verdade, mapa de Karnaugh e circuito lógico (imagens originais em `docs/computer_science/` e na seção "Entrega").
-- **Implementação:** `modulos/logica/cnh.py`, com programa de terminal (`python -m modulos.logica.cnh`) e o simulador com interruptores na seção "Simulador".
-- **Testes:** `python -m pytest tests/test_logica.py` compara, nas 16 combinações, a tabela do grupo, a expressão original, a simplificada e o resultado executado.
-- **Relatório técnico (.pdf):** [`docs/computer_science/relatorio.pdf`](docs/computer_science/relatorio.pdf); prints do simulador em `docs/computer_science/simulador_apto.png` e `simulador_nao_apto.png`.
+### 1. Chat de cidadania (parte geral)
 
-### Contribuição de Soluções em Energias Renováveis e Sustentáveis
+**[Abrir o chat de cidadania](https://citizen-assist-ai-nine.vercel.app/#/geral/chat)**
+
+É a parte generalista do projeto: um chat que tira dúvidas do dia a dia do cidadão, como documentos (identidade, certidões), serviços públicos, programas sociais, direitos e contas.
+
+- **Busca em fontes oficiais:** antes de responder sobre regras, prazos ou valores, o assistente pesquisa na internet, só em sites oficiais (`gov.br`, `jus.br`, `leg.br`, `mp.br`, `def.br`), e lista no fim da resposta as fontes consultadas.
+- **Linguagem simples:** respostas curtas, sem jargão, pensadas para leitura no celular.
+- **Limites claros:** não inventa dados, avisa quando não conseguiu confirmar, mantém neutralidade em temas políticos, recusa assuntos fora de cidadania e, em emergência, orienta a ligar 190, 192 ou 193.
+- **Privacidade:** pede para não enviar CPF, senhas ou dados de cartão; o sistema não tem login e não guarda as conversas.
+
+Código: `app/chat.py`, `app/prompts.py`, `app/static/chat.js`.
+
+### 2. Decisão lógica (Computer Science)
+
+**[Entrega](https://citizen-assist-ai-nine.vercel.app/#/logica/entrega) · [Simulador](https://citizen-assist-ai-nine.vercel.app/#/logica/simulador) · [Relatório](https://citizen-assist-ai-nine.vercel.app/#/logica/relatorio)**
+
+Um módulo lógico que diz se a pessoa está apta a **iniciar o processo de tirar a CNH**, com base nos requisitos da Resolução CONTRAN nº 1.020/2025.
+
+- **Variáveis:** a = maior de idade, b = alfabetizado, c = penalmente imputável, d = tem documento de identidade.
+- **Expressão do grupo:** x = (a·b)·(c·d), que simplifica para x = a·b·c·d.
+- **Entrega:** tabela-verdade, mapa de Karnaugh e circuito lógico **feitos pelo grupo, sem IA**, com as imagens originais e a tabela transcrita.
+- **Simulador:** quatro interruptores e o circuito do grupo animado; fios, portas e lâmpada acendem conforme as respostas, e o sistema explica o que falta.
+- **Programa de terminal:** `python -m modulos.logica.cnh`, que trata respostas inválidas.
+- **Testes:** `tests/test_logica.py` compara, nas 16 combinações, a tabela do grupo, a expressão original, a simplificada e o resultado executado.
+- **Relatório técnico:** [`docs/computer_science/relatorio.pdf`](docs/computer_science/relatorio.pdf).
+
+Código: `modulos/logica/`, `app/static/logica.js`.
+
+### 3. Dados e estatística (Modelagem Linear para Aprendizado de Máquina)
+
+**[Questões respondidas](https://citizen-assist-ai-nine.vercel.app/#/ml/questoes) · [Código](https://citizen-assist-ai-nine.vercel.app/#/ml/codigo) · [Relatório](https://citizen-assist-ai-nine.vercel.app/#/ml/relatorio) · [Chat de dúvidas](https://citizen-assist-ai-nine.vercel.app/#/ml/chat)**
+
+Análise estatística do consumo de energia elétrica nas residências brasileiras, com dados oficiais da EPE (27 estados, mês a mês, de 2004 a 2025, 7.128 registros).
+
+- **Questões 02 a 06:** probabilidade com distribuição normal, teste de hipótese (teste z), análise bivariada com regressão linear simples, análise multivariada com regressão linear múltipla e regressão logística com matriz de confusão. Cada questão tem respostas, tabelas e gráficos.
+- **Código:** um arquivo `.py` por questão, visível no próprio sistema, exatamente como está no repositório.
+- **Relatório (questão 07):** gerado a partir dos resultados, com sumário executivo, metodologia, insights, limitações e PDF em [`docs/modelagem_linear/relatorio.pdf`](docs/modelagem_linear/relatorio.pdf).
+- **Chat de dúvidas:** responde só sobre as questões e o relatório, usando o relatório como base, sem inventar números.
+- **Base de dados:** planilha original e tabela organizada em `modulos/ml/dados/`, com a origem em [`ORIGEM.md`](modulos/ml/dados/ORIGEM.md).
+
+Código: `modulos/ml/`, `app/static/ml.js`.
+
+### 4. Energia (Soluções em Energias Renováveis e Sustentáveis)
+
+**[Simulador solar](https://citizen-assist-ai-nine.vercel.app/#/energia/simulador) · [Comparar alternativas](https://citizen-assist-ai-nine.vercel.app/#/energia/comparar) · [Chat de energia](https://citizen-assist-ai-nine.vercel.app/#/energia/chat)**
 
 - **Público e problema:** famílias de todo o Brasil que querem reduzir a conta de luz e não sabem se vale mais a pena instalar placas solares ou mudar hábitos e equipamentos.
-- **Funcionalidades:** simulador 2D em que as placas entram no telhado de uma casa fictícia mostrando economia, nova conta, retorno do investimento e CO2 evitado; comparação da energia solar com lâmpadas LED e banho mais curto para a mesma casa e 12 meses; chat que responde só sobre energia e usa as mesmas funções de cálculo.
-- **Análise, dados, cálculos, justificativas e limitações:** [`docs/energia/analise.md`](docs/energia/analise.md)
-- **Referências:** [`docs/energia/referencias.md`](docs/energia/referencias.md)
-- **Testes com usuários:** [`docs/energia/testes_com_usuarios.md`](docs/energia/testes_com_usuarios.md) [PENDENTE: realização pelo grupo]
+- **Simulador solar:** a pessoa informa consumo, valor da conta, estado e tipo de ligação; uma casa fictícia recebe placas no telhado, uma a uma, mostrando economia por mês, nova conta, retorno do investimento e CO2 evitado.
+- **Comparar alternativas:** energia solar contra troca de lâmpadas por LED e banho mais curto, para a mesma casa e 12 meses, com custos, viabilidade e limites.
+- **Chat de energia:** responde só sobre energia e faz as contas chamando o mesmo código do simulador, para que os números venham do cálculo e não do modelo.
+- **Dados com fonte:** irradiação solar do INPE, premissas da EPE, regras da ANEEL e fator de emissão do MCTI.
+- **Análise, cálculos e justificativas:** [`docs/energia/analise.md`](docs/energia/analise.md) · **Referências:** [`docs/energia/referencias.md`](docs/energia/referencias.md) · **Testes com usuários:** [`docs/energia/testes_com_usuarios.md`](docs/energia/testes_com_usuarios.md) [PENDENTE: realização pelo grupo]
 - **Vídeo:** [PENDENTE: link do vídeo no YouTube]
 
-### Contribuição de Modelagem Linear para Aprendizado de Máquina
+Código: `modulos/energia/`, `app/ferramentas.py`, `app/static/energia.js`.
 
-- **Base de dados:** EPE, consumo mensal de energia elétrica por classe, 27 estados, 2004 a 2025 (`modulos/ml/dados/`, com a origem em [`ORIGEM.md`](modulos/ml/dados/ORIGEM.md)).
-- **Códigos (.py):** um arquivo por questão em `modulos/ml/` (`q02_probabilidade.py` a `q06_logistica.py`).
-- **Relatório (.pdf):** [`docs/modelagem_linear/relatorio.pdf`](docs/modelagem_linear/relatorio.pdf)
+## Stack e arquitetura
+
+```
+ Navegador (HTML, CSS e JavaScript puro)
+   │  barra lateral, chats, simuladores e relatórios
+   │
+   │  /api/chat (resposta em streaming)   /api/energia/*   /api/logica/*   /api/ml/*
+   ▼
+ Servidor Python (FastAPI)  ── guarda a chave, valida entradas, limita uso por IP
+   │                │
+   │                ├── modulos/energia  → cálculos de energia (simulador e chat)
+   │                ├── modulos/logica   → decisão lógica da CNH
+   │                └── modulos/ml       → resultados, gráficos e relatório da análise
+   ▼
+ API do Claude (Anthropic)  ── modelo de linguagem, busca na web, chamada de ferramentas
+```
+
+| Camada | Tecnologia | Para que serve |
+|---|---|---|
+| **Front-end** | HTML, CSS e JavaScript puro (módulos ES, sem framework e sem etapa de build) | Interface com barra lateral retrátil, chats, simuladores animados em SVG e relatórios. Navegação por endereço (`#/modulo/secao`), responsiva e acessível por teclado |
+| **Back-end** | Python 3, FastAPI e Uvicorn | Entrega a interface e as rotas `/api/*`, valida entradas, limita mensagens por IP e transforma erros em mensagens amigáveis |
+| **Inteligência artificial** | API do Claude pelo SDK oficial `anthropic` (modelo configurável; padrão `claude-haiku-5-5`) | Respostas em streaming, instruções próprias para cada módulo, busca na web restrita a sites oficiais e chamada de ferramentas (*tool use*) para os cálculos de energia |
+| **Análise de dados** | pandas, NumPy, SciPy, statsmodels e matplotlib | Questões de Modelagem Linear, gráficos e relatório, com semente fixa para resultados reproduzíveis |
+| **Dados** | EPE, INPE, ANEEL, MCTI e CONTRAN | Fontes oficiais citadas em cada módulo, com data de consulta |
+| **Testes** | pytest | 102 testes automáticos, sem gastar crédito da API (a API é simulada) |
+| **Hospedagem** | Vercel ([`docs/deploy-vercel.md`](docs/deploy-vercel.md)) | Publicação do site; a chave fica nas variáveis de ambiente, nunca no código |
+
+**Decisões de projeto**
+
+- **A chave da API fica só no servidor.** O navegador nunca fala direto com a Anthropic.
+- **Números vêm do código, não do modelo.** O chat de energia chama as mesmas funções do simulador, e o chat de estatística usa o relatório gerado pela análise.
+- **Segurança da interface:** o texto das respostas é montado sem `innerHTML` e o servidor envia uma política de segurança de conteúdo, o que impede a execução de código injetado.
+- **Privacidade:** sem login, sem banco de dados e sem gravação de conversas; o histórico existe só na tela de quem usa.
+- **Custo controlado:** limite de tamanho das mensagens, limite por IP e limite de buscas na web por pergunta.
 
 ## O que você precisa ter
 
@@ -201,7 +280,10 @@ modulos/
 docs/
   computer_science/     imagens do grupo, prints do simulador e relatório em PDF
   energia/              análise, referências e testes com usuários
+  imagens/              prints usados neste README
   modelagem_linear/     relatório em PDF
+  deploy-vercel.md      passo a passo para publicar na Vercel
+index.py, vercel.json   configuração da publicação na Vercel
 tests/                  testes automáticos
 ```
 
