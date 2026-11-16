@@ -1,4 +1,4 @@
-"""Servidor do Citizen Assist AI: entrega a tela e a rota do chat."""
+"""Servidor do Citizen Assist AI: entrega a tela, o chat e os dados dos módulos."""
 
 import json
 import time
@@ -12,13 +12,22 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, StringConstraints
 
+from modulos.energia import calculo
+from modulos.energia import dados as energia
+
 from . import config
 from .chat import responder
 
+RAIZ = Path(__file__).parent.parent
 PASTA_ESTATICA = Path(__file__).parent / "static"
+PASTA_ML = RAIZ / "modulos" / "ml"
+SAIDAS_ML = PASTA_ML / "saidas"
+RELATORIO_PDF = RAIZ / "docs" / "modelagem_linear" / "relatorio.pdf"
 
 app = FastAPI(title="Citizen Assist AI", docs_url=None, redoc_url=None, openapi_url=None)
 app.mount("/static", StaticFiles(directory=PASTA_ESTATICA), name="static")
+if SAIDAS_ML.is_dir():
+    app.mount("/ml/graficos", StaticFiles(directory=SAIDAS_ML), name="graficos")
 
 Texto = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
@@ -29,9 +38,43 @@ class Mensagem(BaseModel):
 
 
 class PedidoChat(BaseModel):
-    modulo: Literal["geral"]
+    modulo: Literal["geral", "energia", "ml"]
     historico: list[Mensagem] = Field(default_factory=list, max_length=200)
     mensagem: Annotated[Texto, StringConstraints(max_length=config.MAX_CARACTERES_MENSAGEM)]
+
+
+class PedidoSimulacao(BaseModel):
+    consumo_kwh: float = Field(gt=0, le=100_000)
+    valor_conta: float = Field(gt=0, le=1_000_000)
+    uf: str = Field(max_length=2)
+    ligacao: str = Field(max_length=20)
+    potencia_placa_w: float | None = Field(None, ge=50, le=1000)
+    custo_r_por_wp: float | None = Field(None, gt=0, le=100)
+
+
+class Lampadas(BaseModel):
+    quantidade: int = Field(ge=1, le=1000)
+    potencia_atual_w: float = Field(gt=0, le=1000)
+    potencia_led_w: float = Field(gt=0, le=1000)
+    horas_dia: float = Field(ge=0, le=24)
+    preco_unitario: float | None = Field(None, gt=0, le=10_000)
+
+
+class Chuveiro(BaseModel):
+    potencia_w: float = Field(gt=0, le=20_000)
+    banhos_dia: float = Field(gt=0, le=50)
+    minutos_atual: float = Field(gt=0, le=120)
+    minutos_novo: float = Field(ge=0, le=120)
+
+
+class PedidoComparacao(PedidoSimulacao):
+    placas: int | None = Field(None, ge=0, le=energia.MAX_PLACAS)
+    led: Lampadas | None = None
+    chuveiro: Chuveiro | None = None
+
+
+def erro(mensagem: str, status: int) -> JSONResponse:
+    return JSONResponse(status_code=status, content={"erro": mensagem})
 
 
 # Limite simples de requisições por endereço IP, guardado só na memória do servidor.
@@ -60,13 +103,18 @@ async def cabecalhos_de_seguranca(request: Request, call_next):
 
 @app.exception_handler(RequestValidationError)
 async def entrada_invalida(request: Request, exc: RequestValidationError):
-    return JSONResponse(
-        status_code=422,
-        content={
-            "erro": "Não entendi o pedido. Escreva uma mensagem de até "
-            f"{config.MAX_CARACTERES_MENSAGEM} caracteres e tente de novo."
-        },
-    )
+    if request.url.path == "/api/chat":
+        return erro(
+            "Não entendi o pedido. Escreva uma mensagem de até "
+            f"{config.MAX_CARACTERES_MENSAGEM} caracteres e tente de novo.",
+            422,
+        )
+    return erro("Confira os valores informados: algum campo está vazio ou fora do intervalo aceito.", 422)
+
+
+@app.exception_handler(calculo.EntradaInvalida)
+async def calculo_invalido(request: Request, exc: calculo.EntradaInvalida):
+    return erro(str(exc), 422)
 
 
 @app.get("/")
@@ -74,14 +122,14 @@ async def pagina_inicial():
     return FileResponse(PASTA_ESTATICA / "index.html")
 
 
+# ---------- Chat ----------
+
+
 @app.post("/api/chat")
 async def chat(pedido: PedidoChat, request: Request):
     ip = request.client.host if request.client else "desconhecido"
     if passou_do_limite(ip):
-        return JSONResponse(
-            status_code=429,
-            content={"erro": "Você enviou muitas mensagens em pouco tempo. Aguarde um minuto e tente de novo."},
-        )
+        return erro("Você enviou muitas mensagens em pouco tempo. Aguarde um minuto e tente de novo.", 429)
 
     # Só as mensagens mais recentes seguem para a API, e a primeira precisa ser da pessoa.
     historico = [m.model_dump() for m in pedido.historico[-config.MAX_MENSAGENS_HISTORICO :]]
@@ -97,3 +145,74 @@ async def chat(pedido: PedidoChat, request: Request):
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
+
+
+# ---------- Energia ----------
+
+
+@app.get("/api/energia/opcoes")
+async def energia_opcoes():
+    return {
+        "estados": sorted(energia.IRRADIACAO_POR_UF.values(), key=lambda e: e["uf"]),
+        "ligacoes": [
+            {"id": chave, "nome": energia.NOMES_LIGACAO[chave], "disponibilidade_kwh": kwh}
+            for chave, kwh in energia.CUSTO_DISPONIBILIDADE_KWH.items()
+        ],
+        "potencia_placa_w": energia.POTENCIA_PLACA_W,
+        "custo_referencia_r_por_wp": energia.CUSTO_REFERENCIA_R_POR_WP,
+        "max_placas": energia.MAX_PLACAS,
+        "fontes": energia.FONTES,
+        "limitacoes": energia.LIMITACOES,
+        "data_consulta": energia.DATA_CONSULTA,
+    }
+
+
+@app.post("/api/energia/simular")
+async def energia_simular(pedido: PedidoSimulacao):
+    return calculo.simular_solar(**pedido.model_dump())
+
+
+@app.post("/api/energia/comparar")
+async def energia_comparar(pedido: PedidoComparacao):
+    dados = pedido.model_dump()
+    # Campos opcionais vazios não são enviados ao cálculo.
+    for parte in ("led", "chuveiro"):
+        if dados[parte]:
+            dados[parte] = {chave: valor for chave, valor in dados[parte].items() if valor is not None}
+    return calculo.comparar(**dados)
+
+
+# ---------- Estatística ----------
+
+
+@app.get("/api/ml/resultados")
+async def ml_resultados():
+    arquivo = SAIDAS_ML / "resultados.json"
+    if not arquivo.exists():
+        return erro("A análise estatística ainda não foi gerada neste servidor.", 404)
+    return json.loads(arquivo.read_text(encoding="utf-8"))
+
+
+@app.get("/api/ml/codigo")
+async def ml_codigo():
+    arquivos = sorted(PASTA_ML.glob("*.py"))
+    return [
+        {"nome": a.name, "conteudo": a.read_text(encoding="utf-8")}
+        for a in arquivos
+        if a.name != "__init__.py"
+    ]
+
+
+@app.get("/api/ml/relatorio")
+async def ml_relatorio():
+    arquivo = SAIDAS_ML / "relatorio.md"
+    if not arquivo.exists():
+        return erro("O relatório ainda não foi gerado neste servidor.", 404)
+    return {"markdown": arquivo.read_text(encoding="utf-8"), "pdf": RELATORIO_PDF.exists()}
+
+
+@app.get("/ml/relatorio.pdf")
+async def ml_relatorio_pdf():
+    if not RELATORIO_PDF.exists():
+        return erro("O PDF do relatório ainda não foi gerado.", 404)
+    return FileResponse(RELATORIO_PDF, media_type="application/pdf", filename="relatorio-modelagem-linear.pdf")

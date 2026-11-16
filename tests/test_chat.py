@@ -86,7 +86,10 @@ def test_pagina_inicial_abre(cliente):
     resposta = cliente.get("/")
     assert resposta.status_code == 200
     assert "Citizen Assist AI" in resposta.text
-    assert "posso errar" in resposta.text
+    # Os avisos de IA e de privacidade são montados pelo chat.js em todos os chats.
+    chat_js = cliente.get("/static/chat.js").text
+    assert "posso errar" in chat_js
+    assert "não envie CPF" in chat_js
 
 
 def test_resposta_chega_em_pedacos(cliente, monkeypatch):

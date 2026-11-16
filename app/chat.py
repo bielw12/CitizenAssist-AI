@@ -5,7 +5,7 @@ from collections.abc import AsyncIterator
 
 import anthropic
 
-from . import config
+from . import config, ferramentas
 from .prompts import montar_system_prompt
 
 log = logging.getLogger("citizen_assist")
@@ -36,8 +36,9 @@ MSG_INSTAVEL = "O serviço de inteligência artificial está instável no moment
 MSG_GENERICA = "Não foi possível responder agora. Tente de novo em instantes."
 AVISO_RECUSA = "O assistente não pôde responder a esse pedido. Tente reformular a pergunta."
 AVISO_CORTE = "A resposta ficou longa e foi cortada. Peça para continuar, se precisar."
+AVISO_INCOMPLETA = "Não consegui concluir todas as etapas desta resposta. Tente de novo ou reformule a pergunta."
 
-MAX_CONTINUACOES = 3  # vezes que retomamos uma busca na web pausada pela API
+MAX_ETAPAS = 6  # idas e vindas com a API numa mesma resposta (buscas pausadas e chamadas de ferramenta)
 
 
 def mensagem_de_erro(exc: Exception) -> str:
@@ -72,7 +73,19 @@ def ferramentas_do_modulo(modulo: str) -> list[dict]:
         if config.BUSCA_WEB_DOMINIOS:
             busca["allowed_domains"] = config.BUSCA_WEB_DOMINIOS
         return [busca]
+    if modulo == "energia":
+        return ferramentas.FERRAMENTAS_ENERGIA
     return []
+
+
+def resultados_das_ferramentas(conteudo) -> list[dict]:
+    """Executa as ferramentas pedidas pelo modelo e monta os blocos de resposta para a API."""
+    resultados = []
+    for bloco in conteudo:
+        if bloco.type == "tool_use":
+            texto, erro = ferramentas.executar(bloco.name, bloco.input)
+            resultados.append({"type": "tool_result", "tool_use_id": bloco.id, "content": texto, "is_error": erro})
+    return resultados
 
 
 def fontes_citadas(conteudo) -> list[dict]:
@@ -99,29 +112,36 @@ async def responder(modulo: str, historico: list[dict], mensagem: str) -> AsyncI
         "max_tokens": config.MAX_TOKENS,
         "system": montar_system_prompt(modulo),
     }
-    ferramentas = ferramentas_do_modulo(modulo)
-    if ferramentas:
-        parametros["tools"] = ferramentas
+    disponiveis = ferramentas_do_modulo(modulo)
+    if disponiveis:
+        parametros["tools"] = disponiveis
 
     fontes: list[dict] = []
     try:
         async with anthropic.AsyncAnthropic(timeout=90.0) as cliente:
-            for _ in range(MAX_CONTINUACOES + 1):
+            for _ in range(MAX_ETAPAS):
                 async with cliente.messages.stream(messages=mensagens, **parametros) as stream:
                     async for evento in stream:
                         if evento.type == "text":
                             yield {"tipo": "texto", "texto": evento.text}
-                        elif (
-                            evento.type == "content_block_start"
-                            and evento.content_block.type == "server_tool_use"
-                        ):
-                            yield {"tipo": "status", "texto": "Pesquisando em fontes oficiais…"}
+                        elif evento.type == "content_block_start":
+                            if evento.content_block.type == "server_tool_use":
+                                yield {"tipo": "status", "texto": "Pesquisando em fontes oficiais…"}
+                            elif evento.content_block.type == "tool_use":
+                                yield {"tipo": "status", "texto": "Fazendo as contas…"}
                     final = await stream.get_final_message()
                 fontes += fontes_citadas(final.content)
-                if final.stop_reason != "pause_turn":
+                if final.stop_reason == "pause_turn":
+                    # A API pausou uma busca longa: reenviamos a resposta parcial para ela continuar.
+                    mensagens = mensagens + [{"role": "assistant", "content": final.content}]
+                elif final.stop_reason == "tool_use":
+                    # O modelo pediu um cálculo: rodamos o código e devolvemos o resultado.
+                    mensagens = mensagens + [
+                        {"role": "assistant", "content": final.content},
+                        {"role": "user", "content": resultados_das_ferramentas(final.content)},
+                    ]
+                else:
                     break
-                # A API pausou uma busca longa: reenviamos a resposta parcial para ela continuar.
-                mensagens = mensagens + [{"role": "assistant", "content": final.content}]
     except Exception as exc:  # noqa: BLE001 - qualquer falha vira mensagem amigável
         # Registramos só o tipo do erro: nada do que a pessoa escreveu vai para o log.
         log.warning("Falha na chamada à API: %s", type(exc).__name__)
@@ -132,6 +152,8 @@ async def responder(modulo: str, historico: list[dict], mensagem: str) -> AsyncI
         yield {"tipo": "aviso", "texto": AVISO_RECUSA}
     elif final.stop_reason == "max_tokens":
         yield {"tipo": "aviso", "texto": AVISO_CORTE}
+    elif final.stop_reason in ("tool_use", "pause_turn"):
+        yield {"tipo": "aviso", "texto": AVISO_INCOMPLETA}
 
     unicas = list({f["url"]: f for f in fontes}.values())
     if unicas:

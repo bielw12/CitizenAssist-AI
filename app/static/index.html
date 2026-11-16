@@ -7,67 +7,92 @@
   <link rel="stylesheet" href="/static/estilo.css">
 </head>
 <body>
-  <a class="pular" href="#mensagem">Pular para o campo de mensagem</a>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
 
-  <header class="topo">
-    <h1>Citizen Assist AI</h1>
-    <p>Assistente de informação para o cidadão</p>
-  </header>
+  <div class="app" id="app">
+    <aside class="lateral" id="lateral">
+      <div class="lateral-topo">
+        <a class="marca" href="#/geral/chat" aria-label="Citizen Assist AI, página inicial">
+          <svg class="marca-icone" viewBox="0 0 32 32" aria-hidden="true">
+            <rect width="32" height="32" rx="9" class="marca-fundo"/>
+            <path d="M9 12.5a4.5 4.5 0 0 1 4.5-4.5h5A4.5 4.5 0 0 1 23 12.5v3a4.5 4.5 0 0 1-4.5 4.5H15l-4 3.5V19.6A4.5 4.5 0 0 1 9 15.5z" class="marca-traco"/>
+          </svg>
+          <span class="marca-nome">Citizen Assist AI</span>
+        </a>
+        <button type="button" class="botao-icone" id="alternar-lateral" aria-controls="lateral" aria-expanded="true" aria-label="Recolher barra lateral">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>
+        </button>
+      </div>
 
-  <div class="layout">
-    <nav class="modulos" aria-label="Módulos do assistente">
-      <button type="button" class="modulo" data-modulo="geral" aria-current="page">
-        <span class="modulo-nome">Dúvidas gerais</span>
-        <span class="modulo-detalhe">Cidadania</span>
-      </button>
-      <button type="button" class="modulo" data-modulo="logica">
-        <span class="modulo-nome">Decisão lógica</span>
-        <span class="modulo-detalhe">Computer Science</span>
-      </button>
-      <button type="button" class="modulo" data-modulo="ml">
-        <span class="modulo-nome">Dados e estatística</span>
-        <span class="modulo-detalhe">Modelagem Linear</span>
-      </button>
-      <button type="button" class="modulo" data-modulo="energia">
-        <span class="modulo-nome">Energia</span>
-        <span class="modulo-detalhe">Energias Renováveis</span>
-      </button>
-    </nav>
-
-    <main>
-      <section id="painel-chat" aria-labelledby="titulo-chat">
-        <div class="cabecalho-painel">
-          <h2 id="titulo-chat">Dúvidas gerais de cidadania</h2>
-          <button type="button" id="nova-conversa" class="secundario">Nova conversa</button>
+      <nav class="navegacao" aria-label="Módulos e seções">
+        <div class="grupo" data-modulo="geral">
+          <a class="grupo-titulo" href="#/geral/chat" title="Dúvidas gerais">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v6a2.5 2.5 0 0 1-2.5 2.5H11l-4 3.5V15A2.5 2.5 0 0 1 5 12.5z"/></svg>
+            <span class="rotulo">Dúvidas gerais</span>
+          </a>
+          <ul class="secoes">
+            <li><a href="#/geral/chat">Chat de cidadania</a></li>
+          </ul>
         </div>
 
-        <div class="avisos" role="note">
-          <p><strong>Sou uma inteligência artificial e posso errar.</strong> Não sou um canal oficial do governo e não confirmo a concessão de serviços ou direitos. Confira as informações importantes na fonte oficial.</p>
-          <p><strong>Privacidade:</strong> não envie CPF, senhas nem dados de cartão. Sua mensagem é enviada ao serviço de inteligência artificial da Anthropic para gerar a resposta. Este site não guarda a conversa: ela some quando você fecha ou recarrega a página.</p>
+        <div class="grupo" data-modulo="logica">
+          <a class="grupo-titulo" href="#/logica/inicio" title="Decisão lógica">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.2"/><circle cx="6" cy="18" r="2.2"/><circle cx="18" cy="12" r="2.2"/><path d="M8.2 6H11a3 3 0 0 1 3 3v0a3 3 0 0 0 1.8 2.7M8.2 18H11a3 3 0 0 0 3-3v0a3 3 0 0 1 1.8-2.7"/></svg>
+            <span class="rotulo">Decisão lógica</span>
+          </a>
+          <ul class="secoes">
+            <li><a href="#/logica/inicio">Em construção</a></li>
+          </ul>
         </div>
 
-        <div id="mensagens" class="mensagens" role="log" aria-live="polite" aria-label="Conversa"></div>
-        <p id="status" class="status" role="status"></p>
+        <div class="grupo" data-modulo="ml">
+          <a class="grupo-titulo" href="#/ml/questoes" title="Dados e estatística">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v16h16"/><path d="M7.5 15.5l3.5-4 3 2.5 4.5-6"/></svg>
+            <span class="rotulo">Dados e estatística</span>
+          </a>
+          <ul class="secoes">
+            <li><a href="#/ml/questoes">Questões respondidas</a></li>
+            <li><a href="#/ml/codigo">Código</a></li>
+            <li><a href="#/ml/relatorio">Relatório</a></li>
+            <li><a href="#/ml/chat">Chat de dúvidas</a></li>
+          </ul>
+        </div>
 
-        <form id="formulario" class="formulario">
-          <label for="mensagem">Sua pergunta</label>
-          <div class="linha-envio">
-            <textarea id="mensagem" name="mensagem" rows="2" maxlength="2000" required
-              placeholder="Escreva sua dúvida aqui"></textarea>
-            <button type="submit" id="enviar">Enviar</button>
-          </div>
-          <p class="dica">Enter envia. Shift + Enter pula linha.</p>
-        </form>
-      </section>
+        <div class="grupo" data-modulo="energia">
+          <a class="grupo-titulo" href="#/energia/simulador" title="Energia">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/></svg>
+            <span class="rotulo">Energia</span>
+          </a>
+          <ul class="secoes">
+            <li><a href="#/energia/simulador">Simulador solar</a></li>
+            <li><a href="#/energia/comparar">Comparar alternativas</a></li>
+            <li><a href="#/energia/chat">Chat de energia</a></li>
+          </ul>
+        </div>
+      </nav>
 
-      <section id="painel-construcao" aria-labelledby="titulo-construcao" hidden>
-        <h2 id="titulo-construcao"></h2>
-        <p id="texto-construcao"></p>
-        <p class="etiqueta">Em construção</p>
-      </section>
-    </main>
+      <div class="lateral-rodape">
+        <a class="grupo-titulo" href="#/sobre/inicio" title="Sobre e privacidade" data-modulo="sobre">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5.5M12 7.6v.4"/></svg>
+          <span class="rotulo">Sobre e privacidade</span>
+        </a>
+      </div>
+    </aside>
+
+    <div class="fundo-menu" id="fundo-menu" hidden></div>
+
+    <div class="principal">
+      <header class="barra-topo">
+        <button type="button" class="botao-icone" id="abrir-menu" aria-controls="lateral" aria-expanded="false" aria-label="Abrir menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <p class="trilha" id="trilha"></p>
+      </header>
+      <main id="conteudo" tabindex="-1"></main>
+    </div>
   </div>
 
-  <script src="/static/app.js"></script>
+  <noscript><p class="sem-script">Este site precisa de JavaScript para funcionar.</p></noscript>
+  <script type="module" src="/static/app.js"></script>
 </body>
 </html>
