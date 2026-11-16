@@ -10,7 +10,9 @@ Assistente web que ajuda cidadãos a se informarem sobre serviços públicos, en
 
 ### 🔗 Acesse o sistema: **https://citizen-assist-ai-nine.vercel.app/**
 
-**Integrantes:** [PENDENTE: nome completo e RM de cada integrante]
+**Integrantes:** 
+1. Gabriel Pedro de Souza - RM: 571995
+2. Sammy de Moura Sato - RM: 569182
 
 ## As quatro partes do sistema
 
