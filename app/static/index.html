@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Citizen Assist AI</title>
+  <link rel="stylesheet" href="/static/estilo.css">
+</head>
+<body>
+  <a class="pular" href="#mensagem">Pular para o campo de mensagem</a>
+
+  <header class="topo">
+    <h1>Citizen Assist AI</h1>
+    <p>Assistente de informação para o cidadão</p>
+  </header>
+
+  <div class="layout">
+    <nav class="modulos" aria-label="Módulos do assistente">
+      <button type="button" class="modulo" data-modulo="geral" aria-current="page">
+        <span class="modulo-nome">Dúvidas gerais</span>
+        <span class="modulo-detalhe">Cidadania</span>
+      </button>
+      <button type="button" class="modulo" data-modulo="logica">
+        <span class="modulo-nome">Decisão lógica</span>
+        <span class="modulo-detalhe">Computer Science</span>
+      </button>
+      <button type="button" class="modulo" data-modulo="ml">
+        <span class="modulo-nome">Dados e estatística</span>
+        <span class="modulo-detalhe">Modelagem Linear</span>
+      </button>
+      <button type="button" class="modulo" data-modulo="energia">
+        <span class="modulo-nome">Energia</span>
+        <span class="modulo-detalhe">Energias Renováveis</span>
+      </button>
+    </nav>
+
+    <main>
+      <section id="painel-chat" aria-labelledby="titulo-chat">
+        <div class="cabecalho-painel">
+          <h2 id="titulo-chat">Dúvidas gerais de cidadania</h2>
+          <button type="button" id="nova-conversa" class="secundario">Nova conversa</button>
+        </div>
+
+        <div class="avisos" role="note">
+          <p><strong>Sou uma inteligência artificial e posso errar.</strong> Não sou um canal oficial do governo e não confirmo a concessão de serviços ou direitos. Confira as informações importantes na fonte oficial.</p>
+          <p><strong>Privacidade:</strong> não envie CPF, senhas nem dados de cartão. Sua mensagem é enviada ao serviço de inteligência artificial da Anthropic para gerar a resposta. Este site não guarda a conversa: ela some quando você fecha ou recarrega a página.</p>
+        </div>
+
+        <div id="mensagens" class="mensagens" role="log" aria-live="polite" aria-label="Conversa"></div>
+        <p id="status" class="status" role="status"></p>
+
+        <form id="formulario" class="formulario">
+          <label for="mensagem">Sua pergunta</label>
+          <div class="linha-envio">
+            <textarea id="mensagem" name="mensagem" rows="2" maxlength="2000" required
+              placeholder="Escreva sua dúvida aqui"></textarea>
+            <button type="submit" id="enviar">Enviar</button>
+          </div>
+          <p class="dica">Enter envia. Shift + Enter pula linha.</p>
+        </form>
+      </section>
+
+      <section id="painel-construcao" aria-labelledby="titulo-construcao" hidden>
+        <h2 id="titulo-construcao"></h2>
+        <p id="texto-construcao"></p>
+        <p class="etiqueta">Em construção</p>
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

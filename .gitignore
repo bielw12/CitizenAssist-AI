@@ -1,0 +1,15 @@
+# Segredos: o arquivo .env guarda a chave da API e NUNCA vai para o Git
+.env
+.env.*
+!.env.example
+
+# Ambiente virtual e arquivos temporários do Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Arquivos do sistema e de editores
+.DS_Store
+.vscode/
+.idea/
