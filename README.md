@@ -29,7 +29,7 @@ Todas ficam na barra lateral do site. Os links abaixo levam direto a cada seçã
 
 **[Abrir o chat de cidadania](https://citizen-assist-ai-nine.vercel.app/#/geral/chat)**
 
-É a parte generalista do projeto: um chat que tira dúvidas do dia a dia do cidadão, como documentos (identidade, certidões), serviços públicos, programas sociais, direitos e contas.
+É a parte generalista do projeto: um chat que tira dúvidas do dia a dia do cidadão, como documentos (identidade, certidões), serviços públicos, programas sociais, direitos e contas (todo o design do app é inspirado na interface do Claude).
 
 - **Busca em fontes oficiais:** antes de responder sobre regras, prazos ou valores, o assistente pesquisa na internet, só em sites oficiais (`gov.br`, `jus.br`, `leg.br`, `mp.br`, `def.br`), e lista no fim da resposta as fontes consultadas.
 - **Linguagem simples:** respostas curtas, sem jargão, pensadas para leitura no celular.
