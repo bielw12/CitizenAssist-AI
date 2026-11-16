@@ -3,6 +3,7 @@ import { criar } from "./formatar.js";
 import { criarChat } from "./chat.js";
 import { montarSimulador, montarComparacao } from "./energia.js";
 import { montarQuestoes, montarCodigo, montarRelatorio } from "./ml.js";
+import { montarEntrega, montarSimulador as montarSimuladorLogico, montarRelatorioLogica } from "./logica.js";
 
 function paginaSimples(visao, titulo, montarCorpo) {
   const coluna = visao.appendChild(criar("div", null, "coluna pagina"));
@@ -25,15 +26,9 @@ const ROTAS = {
       ],
     }),
   },
-  "logica/inicio": {
-    modulo: "Decisão lógica", secao: "Em construção",
-    montar: (v) => paginaSimples(v, "Decisão lógica", (c) => {
-      c.append(criar("p", "Contribuição da disciplina Computer Science.", "subtitulo"));
-      const cartao = c.appendChild(criar("div", null, "cartao"));
-      cartao.append(criar("span", "Em construção", "etiqueta"));
-      cartao.append(criar("p", "Aqui você vai responder a algumas perguntas de sim ou não e receber a orientação correspondente. O módulo entra quando o grupo concluir, sem uso de IA, a tabela-verdade, o mapa de Karnaugh e o circuito lógico."));
-    }),
-  },
+  "logica/entrega": { modulo: "Decisão lógica", secao: "Entrega", montar: montarEntrega },
+  "logica/simulador": { modulo: "Decisão lógica", secao: "Simulador", montar: montarSimuladorLogico },
+  "logica/relatorio": { modulo: "Decisão lógica", secao: "Relatório", montar: montarRelatorioLogica },
   "ml/questoes": { modulo: "Dados e estatística", secao: "Questões respondidas", montar: montarQuestoes },
   "ml/codigo": { modulo: "Dados e estatística", secao: "Código", montar: montarCodigo },
   "ml/relatorio": { modulo: "Dados e estatística", secao: "Relatório", montar: montarRelatorio },

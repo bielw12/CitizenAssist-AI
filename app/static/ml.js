@@ -93,16 +93,21 @@ export function montarCodigo(visao) {
 }
 
 export function montarRelatorio(visao) {
+  criarRelatorio(visao, "/api/ml/relatorio", "/ml/relatorio.pdf");
+}
+
+// Tela de relatório reaproveitada pelos módulos de Estatística e de Decisão lógica.
+export function criarRelatorio(visao, urlTexto, urlPdf) {
   const coluna = visao.appendChild(criar("div", null, "coluna pagina"));
   const acoes = coluna.appendChild(criar("div", null, "acoes nao-imprimir"));
   const corpo = coluna.appendChild(criar("article"));
   corpo.append(criar("p", "Carregando o relatório…", "discreto"));
 
-  pedir("/api/ml/relatorio").then((dados) => {
+  pedir(urlTexto).then((dados) => {
     formatarTexto(dados.markdown, corpo, 2);
     if (dados.pdf) {
       const baixar = acoes.appendChild(criar("a", "Baixar o relatório em PDF", "botao"));
-      baixar.href = "/ml/relatorio.pdf";
+      baixar.href = urlPdf;
       baixar.setAttribute("download", "");
     }
     const imprimir = acoes.appendChild(criar("button", "Imprimir ou salvar como PDF", "botao claro"));

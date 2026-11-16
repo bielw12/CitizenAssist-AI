@@ -16,8 +16,8 @@ export function criarLink(texto, url) {
   return a;
 }
 
-// Imagens só podem vir da pasta de gráficos do próprio sistema.
-const IMAGEM_PERMITIDA = /^\/ml\/graficos\/[\w.-]+\.png$/;
+// Imagens só podem vir de pastas do próprio sistema (gráficos e imagens do módulo lógico).
+const IMAGEM_PERMITIDA = /^\/(ml\/graficos|static\/logica)\/[\w.-]+\.png$/;
 
 const PADRAO_LINHA =
   /!\[([^\]]*)\]\(([^)\s]+)\)|\*\*(.+?)\*\*|`([^`]+)`|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)|(https?:\/\/[^\s<>()]*[^\s<>().,;:!?])|\*([^*\s][^*]*?)\*/g;

@@ -9,9 +9,17 @@ Assistente web que ajuda cidadãos a se informarem sobre cidadania, energia e da
 | Módulo (barra lateral) | Seções | Disciplina | Onde está o código |
 |---|---|---|---|
 | Dúvidas gerais | Chat de cidadania, com busca em sites oficiais | Produto (todas) | `app/` |
-| Decisão lógica | Em construção | Computer Science | [PENDENTE: material do grupo] |
+| Decisão lógica | Entrega · Simulador · Relatório | Computer Science | `modulos/logica/`, `app/static/logica.js`, `docs/computer_science/` |
 | Dados e estatística | Questões respondidas · Código · Relatório · Chat de dúvidas | Modelagem Linear para Aprendizado de Máquina | `modulos/ml/`, `docs/modelagem_linear/` |
 | Energia | Simulador solar · Comparar alternativas · Chat de energia | Soluções em Energias Renováveis e Sustentáveis | `modulos/energia/`, `app/ferramentas.py`, `app/static/energia.js`, `docs/energia/` |
+
+### Contribuição de Computer Science
+
+- **Situação escolhida:** orientar se a pessoa pode iniciar o processo de tirar a CNH. Variáveis: a = maior de idade, b = alfabetizado, c = penalmente imputável, d = tem documento de identidade. Expressão do grupo: x = (a·b)·(c·d).
+- **Feito pelo grupo, sem IA:** tabela-verdade, mapa de Karnaugh e circuito lógico (imagens originais em `docs/computer_science/` e na seção "Entrega").
+- **Implementação:** `modulos/logica/cnh.py`, com programa de terminal (`python -m modulos.logica.cnh`) e o simulador com interruptores na seção "Simulador".
+- **Testes:** `python -m pytest tests/test_logica.py` compara, nas 16 combinações, a tabela do grupo, a expressão original, a simplificada e o resultado executado.
+- **Relatório técnico (.pdf):** [`docs/computer_science/relatorio.pdf`](docs/computer_science/relatorio.pdf); prints do simulador em `docs/computer_science/simulador_apto.png` e `simulador_nao_apto.png`.
 
 ### Contribuição de Soluções em Energias Renováveis e Sustentáveis
 
@@ -132,7 +140,7 @@ O terminal mostra `Uvicorn running on http://127.0.0.1:8000`. Abra esse endereç
 python -m pytest
 ```
 
-A última linha deve ser parecida com `59 passed`. Os testes não usam a sua chave e não gastam crédito. Os testes da análise estatística (`tests/test_ml.py`) precisam das bibliotecas de `requirements-analise.txt`; sem elas, eles aparecem como `skipped`.
+A última linha deve ser parecida com `101 passed`. Os testes não usam a sua chave e não gastam crédito. Os testes da análise estatística (`tests/test_ml.py`) precisam das bibliotecas de `requirements-analise.txt`; sem elas, eles aparecem como `skipped`.
 
 ### Perguntas para testar os chats com a chave
 
@@ -157,7 +165,15 @@ python -m modulos.ml.executar
 
 O comando recria a base em `modulos/ml/dados/base_consumo_uf_mensal.csv` e grava em `modulos/ml/saidas/` o arquivo `resultados.json`, os gráficos e o `relatorio.md`. Como os sorteios usam semente fixa, o resultado é sempre o mesmo. Cada questão também roda sozinha, por exemplo `python -m modulos.ml.q04_bivariada`.
 
-**PDF do relatório:** com o servidor rodando, abra "Dados e estatística → Relatório", clique em "Imprimir ou salvar como PDF" e escolha "Salvar como PDF". O arquivo `docs/modelagem_linear/relatorio.pdf` foi gerado dessa forma.
+**PDF do relatório:** com o servidor rodando, abra "Dados e estatística → Relatório", clique em "Imprimir ou salvar como PDF" e escolha "Salvar como PDF". O arquivo `docs/modelagem_linear/relatorio.pdf` foi gerado dessa forma. O relatório de Computer Science (`docs/computer_science/relatorio.pdf`) é gerado do mesmo jeito, em "Decisão lógica → Relatório".
+
+## Programa de terminal (Decisão lógica)
+
+```bash
+python -m modulos.logica.cnh
+```
+
+O programa faz as quatro perguntas, aceita `s`/`n` ou `1`/`0` e repete a pergunta quando a resposta é inválida. No fim, mostra a saída x e o que falta para a pessoa ficar apta.
 
 ## Organização das pastas
 
@@ -169,9 +185,11 @@ app/                    servidor (FastAPI) e tela
   ferramentas.py        cálculos de energia que o chat pode chamar
   static/               tela: index.html, estilo.css e os arquivos .js de cada parte
 modulos/
+  logica/               decisão lógica da CNH (Computer Science) e relatório técnico
   energia/              dados com fonte e cálculos de energia
   ml/                   análise estatística: scripts, dados e saídas
 docs/
+  computer_science/     imagens do grupo, prints do simulador e relatório em PDF
   energia/              análise, referências e testes com usuários
   modelagem_linear/     relatório em PDF
 tests/                  testes automáticos
@@ -180,7 +198,7 @@ tests/                  testes automáticos
 ## Pendências
 
 - Nomes completos e RMs dos integrantes (README, relatório e arquivo de entrega).
-- Módulo de Computer Science: tabela-verdade, mapa de Karnaugh e circuito feitos pelo grupo, sem IA, e resposta do professor sobre o uso de IA no código.
+- Computer Science: circuito simplificado (uma porta E de 4 entradas) e prints da simulação no logic.ly ou no LogicCircuit, feitos pelo grupo sem IA, para completar o relatório; e resposta do professor sobre o uso de IA no código do simulador.
 - Aprovação da potência de 550 W por placa (premissa do grupo).
 - Testes com usuários, vídeo de até 3 minutos e arquivo `.txt` de entrega (Energia).
 - Postagem dos arquivos de Modelagem Linear no Portal (base, códigos `.py` e relatório `.pdf`).

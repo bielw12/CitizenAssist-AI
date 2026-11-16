@@ -6,7 +6,7 @@ from collections import defaultdict, deque
 from pathlib import Path
 from typing import Annotated, Literal
 
-from fastapi import FastAPI, Request
+from fastapi import Body, FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -14,6 +14,8 @@ from pydantic import BaseModel, Field, StringConstraints
 
 from modulos.energia import calculo
 from modulos.energia import dados as energia
+from modulos.logica import cnh
+from modulos.logica import relatorio as relatorio_logica
 
 from . import config
 from .chat import responder
@@ -23,6 +25,7 @@ PASTA_ESTATICA = Path(__file__).parent / "static"
 PASTA_ML = RAIZ / "modulos" / "ml"
 SAIDAS_ML = PASTA_ML / "saidas"
 RELATORIO_PDF = RAIZ / "docs" / "modelagem_linear" / "relatorio.pdf"
+RELATORIO_LOGICA_PDF = RAIZ / "docs" / "computer_science" / "relatorio.pdf"
 
 app = FastAPI(title="Citizen Assist AI", docs_url=None, redoc_url=None, openapi_url=None)
 app.mount("/static", StaticFiles(directory=PASTA_ESTATICA), name="static")
@@ -180,6 +183,45 @@ async def energia_comparar(pedido: PedidoComparacao):
         if dados[parte]:
             dados[parte] = {chave: valor for chave, valor in dados[parte].items() if valor is not None}
     return calculo.comparar(**dados)
+
+
+# ---------- Decisão lógica (Computer Science) ----------
+
+
+@app.get("/api/logica/dados")
+async def logica_dados():
+    return {
+        "variaveis": cnh.VARIAVEIS,
+        "saida": cnh.SAIDA,
+        "expressao_do_grupo": cnh.EXPRESSAO_DO_GRUPO,
+        "expressao_simplificada": cnh.EXPRESSAO_SIMPLIFICADA,
+        "tabela_do_grupo": [dict(zip(cnh.NOMES + ["x"], linha)) for linha in cnh.TABELA_DO_GRUPO],
+        "fontes": cnh.FONTES,
+        "limitacoes": cnh.LIMITACOES,
+        "data_consulta": cnh.DATA_CONSULTA,
+    }
+
+
+@app.post("/api/logica/avaliar")
+async def logica_avaliar(corpo: dict = Body(...)):
+    for nome in cnh.NOMES:
+        valor = corpo.get(nome)
+        # Só os números 0 e 1 são aceitos (true/false e textos são recusados).
+        if type(valor) is not int or valor not in (0, 1):
+            return erro(f"Valor inválido para {nome}: use 0 (não) ou 1 (sim).", 422)
+    return cnh.avaliar({nome: corpo[nome] for nome in cnh.NOMES})
+
+
+@app.get("/api/logica/relatorio")
+async def logica_relatorio():
+    return {"markdown": relatorio_logica.montar(), "pdf": RELATORIO_LOGICA_PDF.exists()}
+
+
+@app.get("/logica/relatorio.pdf")
+async def logica_relatorio_pdf():
+    if not RELATORIO_LOGICA_PDF.exists():
+        return erro("O PDF do relatório ainda não foi gerado.", 404)
+    return FileResponse(RELATORIO_LOGICA_PDF, media_type="application/pdf", filename="relatorio-computer-science.pdf")
 
 
 # ---------- Estatística ----------
